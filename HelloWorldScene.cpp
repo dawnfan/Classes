@@ -26,7 +26,8 @@ bool HelloWorld::init()
 	{
 		return false;
 	}
-	
+	//加了一行注释
+	//注释 commit
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Point origin = Director::getInstance()->getVisibleOrigin();
 
