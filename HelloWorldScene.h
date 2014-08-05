@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include "SimpleAudioEngine.h"
+#include "GameLayer.h"
 
 USING_NS_CC;
 
@@ -14,6 +15,9 @@ public:
 	void menuCloseCallback(cocos2d::Ref* pSender);
 	CREATE_FUNC(HelloWorld);
 
+	//开始按键的回调函数
+	void startGame(cocos2d::Ref* pSender);
+	//声音按键的回调函数
 	void setOptions(cocos2d::Ref* pSender);
 	//响应安卓返回键
 	virtual void onKeyReleased(EventKeyboard::KeyCode keycode,Event* event)override;

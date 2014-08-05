@@ -31,6 +31,19 @@ bool HelloWorld::init()
 	this->addChild(Background);
 	//触摸效果开启
 	this->setTouchEnabled(true);
+
+	//冒险模式
+	auto item_Adventure = MenuItemImage::create(
+							"menu/play1.png",
+							"menu/play2.png",
+							CC_CALLBACK_1(HelloWorld::startGame, this));
+	item_Adventure->setPosition(ccp(0,50));
+	//关于界面
+	auto item_About= MenuItemImage::create(
+							"menu/about1.png",
+							"menu/about2.png",
+							CC_CALLBACK_1(HelloWorld::startGame, this));
+	item_About->setPosition(ccp(120,-200));
 	//播放背景音乐
 	if(!userDefault->getBoolForKey("Music")){
 		userDefault->getBoolForKey("Music",true);
@@ -46,8 +59,8 @@ bool HelloWorld::init()
 
 	//声音开关
 	//打开关闭两个状态
-	auto on = MenuItemImage::create("menu/voice1.png","menu/voice1.png",NULL,NULL);
-	auto off = MenuItemImage::create("menu/voice3.png","menu/voice3.png",NULL,NULL);
+	auto on = MenuItemImage::create("menu/voice1.png","menu/voice2.png",NULL,NULL);
+	auto off = MenuItemImage::create("menu/voice3.png","menu/voice4.png",NULL,NULL);
 	//初始化状态为1
 	MenuItemToggle *item_Voice;
 	int selectId;
@@ -67,7 +80,7 @@ bool HelloWorld::init()
 	item_Voice->setSelectedIndex(selectId);
 	item_Voice->setPosition(ccp(-120,-200));
 
-	CCMenu* menu = CCMenu::create(item_Voice,NULL);
+	CCMenu* menu = CCMenu::create(item_Adventure,item_Voice,item_About,NULL);
 	this->addChild(menu);
 
 	//响应键盘消息
@@ -82,7 +95,13 @@ bool HelloWorld::init()
 
 	return true;
 }
-//声音选项，把用户的选择存储在后台
+//开始游戏按键的回调函数
+void HelloWorld::startGame(cocos2d::Ref* pSender)
+{
+	CCLOG("dventure_Menu item clicked");
+	CCDirector::sharedDirector()->replaceScene(GameLayer::createScene());
+}
+//声音按键的回调函数，把用户的选择存储在后台
 void HelloWorld::setOptions(cocos2d::Ref* pSender)
 {
 	bool temp = userDefault->getBoolForKey("Music");
