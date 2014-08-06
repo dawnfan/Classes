@@ -207,6 +207,8 @@ void GameLayer::moveRaindrop()
 	{
 		//每次调用都重新初始化标记数组
 		memset((void*)m_mark,false,m_markSize);
+		//当前坐标也标记为走过了
+		m_mark[row*m_width+col] = true;
 		int next_row = row + choices[odd][i][0];
 		int next_col = col + choices[odd][i][1];
 		SquareSprite* next_sprite = m_matrix[next_row*MATRIX_WIDTH + next_col];
@@ -216,7 +218,7 @@ void GameLayer::moveRaindrop()
 		}
 		else
 		{
-			int result = findWay(next_row,next_col,1);
+			int result = findWay(next_row,next_col,1,i);
 			if(result != -1)
 			{
 				if(result < bestWay)
@@ -265,7 +267,9 @@ void GameLayer::moveRaindrop()
 //雨滴的逃生路线，result代表最短路径的长度，用于筛选最短路径，返回值也是result
 //返回值 -1代表雨滴成功逃脱了，进入结束页面
 //			 81代表雨滴被围住了。。
-int GameLayer::findWay(int row,int col,int result)
+//贪心算法，雨滴可以向六个方向移动，当雨滴向某一个方向移动的时候，我们认为他会一直向该方向移动才能找到最佳路径
+//通过最后的tag记录当前行进的方向
+int GameLayer::findWay(int row,int col,int result,int tag)
 {
 	m_mark[row*m_width+col] = true;
 	int odd = row%2;
@@ -276,8 +280,9 @@ int GameLayer::findWay(int row,int col,int result)
 		}
 		return result;
 	}
-	for(int i = 0;i<6;++i)
+	for(int j = tag;j<6+tag;++j)
 	{
+		int i = j%6;
 		int next_row = row + choices[odd][i][0];
 		int next_col = col + choices[odd][i][1];
 		SquareSprite* next_sprite = m_matrix[next_row*MATRIX_WIDTH + next_col];
@@ -287,7 +292,7 @@ int GameLayer::findWay(int row,int col,int result)
 		}
 		else
 		{
-			int res = findWay(next_row,next_col,result+1);
+			int res = findWay(next_row,next_col,result+1,i);
 			if(res < best_way)
 			{
 				best_way = res;

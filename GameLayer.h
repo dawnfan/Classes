@@ -36,7 +36,7 @@ private:
 	bool m_isTrapped;
 
 	Point positionOfItem(int row, int col);
-	int findWay(int row,int col,int result);
+	int findWay(int row,int col,int result,int tag);
 	SquareSprite *GameLayer::spriteOfPoint(Point *point);
 	void initCloud();
 	void moveRaindrop();
