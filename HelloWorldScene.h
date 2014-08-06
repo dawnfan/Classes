@@ -14,7 +14,8 @@ public:
 	virtual bool init();  
 	void menuCloseCallback(cocos2d::Ref* pSender);
 	CREATE_FUNC(HelloWorld);
-
+	//关于按键的回调函数
+	void aboutFunc(cocos2d::Ref* pSender);
 	//开始按键的回调函数
 	void startGame(cocos2d::Ref* pSender);
 	//声音按键的回调函数

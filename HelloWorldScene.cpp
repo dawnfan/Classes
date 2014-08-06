@@ -1,4 +1,5 @@
 #include "HelloWorldScene.h"
+#include "About.h"
 
 #define userDefault UserDefault::getInstance()
 
@@ -37,13 +38,13 @@ bool HelloWorld::init()
 							"menu/play1.png",
 							"menu/play2.png",
 							CC_CALLBACK_1(HelloWorld::startGame, this));
-	item_Adventure->setPosition(ccp(0,50));
+	item_Adventure->setPosition(ccp(80,-135));
 	//关于界面
 	auto item_About= MenuItemImage::create(
 							"menu/about1.png",
 							"menu/about2.png",
-							CC_CALLBACK_1(HelloWorld::startGame, this));
-	item_About->setPosition(ccp(120,-200));
+							CC_CALLBACK_1(HelloWorld::aboutFunc, this));
+	item_About->setPosition(ccp(-110,-200));
 	//播放背景音乐
 	if(!userDefault->getBoolForKey("Music")){
 		userDefault->getBoolForKey("Music",true);
@@ -78,7 +79,7 @@ bool HelloWorld::init()
 	}
 	//int selectId = AudioState? 0 : 1;
 	item_Voice->setSelectedIndex(selectId);
-	item_Voice->setPosition(ccp(-120,-200));
+	item_Voice->setPosition(ccp(-30,-155));
 
 	CCMenu* menu = CCMenu::create(item_Adventure,item_Voice,item_About,NULL);
 	this->addChild(menu);
@@ -94,6 +95,12 @@ bool HelloWorld::init()
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
 
 	return true;
+}
+//关于按键的回调函数
+void HelloWorld::aboutFunc(Ref* pSender)
+{
+	CCLOG("about_Menu item clicked");
+	Director::sharedDirector()->replaceScene(GameAbout::createScene());
 }
 //开始游戏按键的回调函数
 void HelloWorld::startGame(cocos2d::Ref* pSender)
