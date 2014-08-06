@@ -33,6 +33,7 @@ private:
 	bool m_isTouchEnable;
 	Raindrop* m_raindrop;
 	int m_markSize;
+	bool m_isTrapped;
 
 	Point positionOfItem(int row, int col);
 	int findWay(int row,int col,int result);
