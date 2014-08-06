@@ -2,21 +2,32 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "SimpleAudioEngine.h"
+#include "GameLayer.h"
+
+USING_NS_CC;
 
 class HelloWorld : public cocos2d::Layer
 {
 public:
-    // there's no 'id' in cpp, so we recommend returning the class instance pointer
-    static cocos2d::Scene* createScene();
+	static cocos2d::Scene* createScene();
+	virtual bool init();  
+	void menuCloseCallback(cocos2d::Ref* pSender);
+	CREATE_FUNC(HelloWorld);
 
-    // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
-    virtual bool init();  
-    
-    // a selector callback
-    void menuCloseCallback(cocos2d::Ref* pSender);
-    
-    // implement the "static create()" method manually
-    CREATE_FUNC(HelloWorld);
+	//开始按键的回调函数
+	void startGame(cocos2d::Ref* pSender);
+	//声音按键的回调函数
+	void setOptions(cocos2d::Ref* pSender);
+	//响应安卓返回键
+	virtual void onKeyReleased(EventKeyboard::KeyCode keycode,Event* event)override;
+	virtual bool onTouchBegan(Touch *touch, Event *unused) override;
+private:
+	CCMenuItemImage *item_Voice;
+	bool AudioState;
+	LabelTTF * exit;
+	//记录是否按了别的地方
+	bool touchedBack;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
