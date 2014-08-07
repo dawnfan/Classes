@@ -269,6 +269,7 @@ void GameLayer::moveRaindrop()
 	}*/
 	int row = m_raindrop->getRow();
 	int col = m_raindrop->getCol();
+	int odd = row%2;
 	//每次调用都重新初始化标记数组
 	memset((void*)m_mark,false,m_markSize);
 	//当前坐标也标记为走过了
@@ -299,15 +300,33 @@ void GameLayer::moveRaindrop()
 			Director::sharedDirector()->replaceScene(newScene);
 		}
 	}else{
-		//雨滴被围住了
-		//更换到endlayer
-		Scene* newScene = EndLayer::createScene();
-		EndLayer* layer = EndLayer::create();
-		//显示步数,背景不需要更换
-		layer->end_step->setString(CCString::createWithFormat("%d",m_times)->getCString());
-		layer->addChild(layer->end_step,1);
-		newScene->addChild(layer);
-		Director::sharedDirector()->replaceScene(newScene);
+		//雨滴被围住了,随便找一个方向走
+		SquareSprite* next = NULL;
+		for(int i = 0;i<6;++i)
+		{
+			int next_row = row + choices[odd][i][0];
+			int next_col = col + choices[odd][i][1];
+			SquareSprite* next_sprite = m_matrix[next_row*MATRIX_WIDTH + next_col];
+			if(!next_sprite->getSelected())//可以走就走
+			{
+				next = next_sprite;
+			}
+		}
+		if(next){
+			m_raindrop->runAction(MoveTo::create(0.3, next->getPosition()));
+			m_raindrop->setCol(next->getCol());
+			m_raindrop->setRow(next->getRow());
+		}
+		else{
+			//更换到endlayer
+			Scene* newScene = EndLayer::createScene();
+			EndLayer* layer = EndLayer::create();
+			//显示步数,背景不需要更换
+			layer->end_step->setString(CCString::createWithFormat("%d",m_times)->getCString());
+			layer->addChild(layer->end_step,1);
+			newScene->addChild(layer);
+			Director::sharedDirector()->replaceScene(newScene);
+		}
 	}
 
 }
