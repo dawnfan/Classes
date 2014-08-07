@@ -1,4 +1,5 @@
 #include "GameLayer.h"
+#include "EndLayer.h"
 
 #define MATRIX_WIDTH (9)
 #define MATRIX_HEIGHT (9)
@@ -288,13 +289,25 @@ void GameLayer::moveRaindrop()
 		m_raindrop->setCol(next->getCol());
 		m_raindrop->setRow(next->getRow());
 		if(m_isRun){
-			Director::getInstance()->end();
+			//雨滴逃脱
+			//更换到endlayer
+			Scene* newScene = EndLayer::createScene();
+			EndLayer* layer = EndLayer::create();
+			//更换显示背景
+			layer->end_bg->setTexture(TextureCache::sharedTextureCache()->addImage("main_game/bg_fail.png"));
+			newScene->addChild(layer);
+			Director::sharedDirector()->replaceScene(newScene);
 		}
 	}else{
 		//雨滴被围住了
 		//更换到endlayer
-		Director::getInstance()->end();
-		//CCDirector::sharedDirector()->replaceScene(EndLayer::createScene());
+		Scene* newScene = EndLayer::createScene();
+		EndLayer* layer = EndLayer::create();
+		//显示步数,背景不需要更换
+		layer->end_step->setString(CCString::createWithFormat("%d",m_times)->getCString());
+		layer->addChild(layer->end_step,1);
+		newScene->addChild(layer);
+		Director::sharedDirector()->replaceScene(newScene);
 	}
 
 }
