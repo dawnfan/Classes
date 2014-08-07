@@ -23,6 +23,10 @@ public:
 	CC_SYNTHESIZE(int, m_col, Col);
 	//是否被选中
 	CC_SYNTHESIZE(bool,m_selected,Selected);
+	//选路时前面的方块
+	CC_SYNTHESIZE(SquareSprite*,m_prev,Prev);
+	//选路时是否在队列里面
+	//CC_SYNTHESIZE(bool,m_inQueue,Que);
 	//CC_SYNTHESIZE_READONLY(DisplayMode, m_displayMode, DisplayMode);
 	//void setDisplayMode(DisplayMode mode);
 };
