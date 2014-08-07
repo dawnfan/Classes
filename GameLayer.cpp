@@ -26,7 +26,8 @@ GameLayer::GameLayer()
 	m_isTouchEnable(true),
 	m_raindrop(NULL),
 	m_markSize(0),
-	m_isTrapped(false)
+	m_isRun(false),
+	m_times(0)
 {
 
 }
@@ -144,6 +145,7 @@ bool GameLayer::onTouchBegan(Touch *touch, Event *unused)
 		{
 			if(!srcSprite->getSelected())//未被选择过
 			{
+				m_times++;
 				srcSprite->setSelected(true);
 				CCTexture2D * texture = CCTextureCache::sharedTextureCache()->addImage("block2.png");
 				srcSprite->setTexture(texture);
@@ -198,6 +200,7 @@ void GameLayer::initCloud()
 //移动雨滴
 void GameLayer::moveRaindrop()
 {
+	/*
 	SquareSprite* next = NULL;
 	int row = m_raindrop->getRow();
 	int col = m_raindrop->getCol();
@@ -207,6 +210,8 @@ void GameLayer::moveRaindrop()
 	{
 		//每次调用都重新初始化标记数组
 		memset((void*)m_mark,false,m_markSize);
+		//当前坐标也标记为走过了
+		m_mark[row*m_width+col] = true;
 		int next_row = row + choices[odd][i][0];
 		int next_col = col + choices[odd][i][1];
 		SquareSprite* next_sprite = m_matrix[next_row*MATRIX_WIDTH + next_col];
@@ -216,7 +221,7 @@ void GameLayer::moveRaindrop()
 		}
 		else
 		{
-			int result = findWay(next_row,next_col,1);
+			int result = findWay(next_row,next_col,1,i);
 			if(result != -1)
 			{
 				if(result < bestWay)
@@ -230,7 +235,7 @@ void GameLayer::moveRaindrop()
 				//更换到endlayer
 				//CCDirector::sharedDirector()->replaceScene(EndLayer::createScene());
 				//Director::getInstance()->end();
-				m_isTrapped = true;
+				m_isRun = true;
 			}
 		}
 	}
@@ -258,14 +263,47 @@ void GameLayer::moveRaindrop()
 		Director::getInstance()->end();
 		//CCDirector::sharedDirector()->replaceScene(EndLayer::createScene());
 	}
-	if(m_isTrapped){
+	if(m_isRun){
 		Director::getInstance()->end();
+	}*/
+	int row = m_raindrop->getRow();
+	int col = m_raindrop->getCol();
+	//每次调用都重新初始化标记数组
+	memset((void*)m_mark,false,m_markSize);
+	//当前坐标也标记为走过了
+	m_mark[row*m_width+col] = true;
+	SquareSprite* now_sprite = m_matrix[row*MATRIX_WIDTH + col];
+	SquareSprite* end_sprite = findNext(now_sprite);
+	if(end_sprite){
+		SquareSprite* next = end_sprite->getPrev();
+		if(next == now_sprite){
+			m_isRun = true;
+		}
+		while(next != now_sprite){
+			end_sprite = next;
+			next = next->getPrev();
+		}
+		next = end_sprite;
+		m_raindrop->runAction(MoveTo::create(0.3, next->getPosition()));
+		m_raindrop->setCol(next->getCol());
+		m_raindrop->setRow(next->getRow());
+		if(m_isRun){
+			Director::getInstance()->end();
+		}
+	}else{
+		//雨滴被围住了
+		//更换到endlayer
+		Director::getInstance()->end();
+		//CCDirector::sharedDirector()->replaceScene(EndLayer::createScene());
 	}
+
 }
 //雨滴的逃生路线，result代表最短路径的长度，用于筛选最短路径，返回值也是result
 //返回值 -1代表雨滴成功逃脱了，进入结束页面
 //			 81代表雨滴被围住了。。
-int GameLayer::findWay(int row,int col,int result)
+//贪心算法，雨滴可以向六个方向移动，当雨滴向某一个方向移动的时候，我们认为他会一直向该方向移动才能找到最佳路径
+//通过最后的tag记录当前行进的方向
+int GameLayer::findWay(int row,int col,int result,int tag)
 {
 	m_mark[row*m_width+col] = true;
 	int odd = row%2;
@@ -276,8 +314,9 @@ int GameLayer::findWay(int row,int col,int result)
 		}
 		return result;
 	}
-	for(int i = 0;i<6;++i)
+	for(int j = tag;j<6+tag;++j)
 	{
+		int i = j%6;
 		int next_row = row + choices[odd][i][0];
 		int next_col = col + choices[odd][i][1];
 		SquareSprite* next_sprite = m_matrix[next_row*MATRIX_WIDTH + next_col];
@@ -287,7 +326,7 @@ int GameLayer::findWay(int row,int col,int result)
 		}
 		else
 		{
-			int res = findWay(next_row,next_col,result+1);
+			int res = findWay(next_row,next_col,result+1,i);
 			if(res < best_way)
 			{
 				best_way = res;
@@ -295,4 +334,40 @@ int GameLayer::findWay(int row,int col,int result)
 		}
 	}
 	return best_way;
+}
+//另一种算法，遍历，类似于二叉树层次遍历
+SquareSprite* GameLayer::findNext(SquareSprite* pos)
+{
+	std::queue<SquareSprite*> myQueue;
+	//push 之前把方块设为已经在队列里面
+	//pos->setQue(true);
+	myQueue.push(pos);
+	while(!myQueue.empty()){
+		SquareSprite* now = myQueue.front();
+		myQueue.pop();
+		//POP之后把方块设为不在队列里面
+		//now->setQue(false);
+		int row = now->getRow();
+		int col = now->getCol();
+		int odd = row%2;
+		for(int i = 0;i<6;++i)//查找能走的六个方向
+		{
+			int next_row = row + choices[odd][i][0];
+			int next_col = col + choices[odd][i][1];
+			SquareSprite* next_sprite = m_matrix[next_row*MATRIX_WIDTH + next_col];
+			if(!next_sprite->getSelected() && m_mark[next_row*m_width+next_col] == false)//没变成云
+			{
+				next_sprite->setPrev(now);
+				if(next_col <= 0 || next_col >= 8 || next_row <= 0 || next_row >= 8){//是边界的话直接返回
+					return next_sprite;
+				}else{
+					//next_sprite->setQue(true);
+					m_mark[next_row*m_width+next_col] = true;
+					myQueue.push(next_sprite);
+				}
+			}
+		}
+	}
+	//返回空值的时候说明雨滴已经被围住了
+	return NULL;
 }

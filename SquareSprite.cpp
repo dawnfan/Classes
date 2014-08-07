@@ -21,6 +21,8 @@ SquareSprite *SquareSprite::create(int row, int col)
 	square->m_row = row;
 	square->m_col = col;
 	square->m_selected = false;
+	square->m_prev = NULL;
+	//square->m_inQueue = false;
 	//sushi->m_imgIndex = rand() % TOTAL_SUSHI;
 	//square->initWithSpriteFrameName("block1.png");
 	square->initWithFile("block1.png");
